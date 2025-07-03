@@ -271,20 +271,23 @@ function addcountwidget(){
 var sd_max_clicks_per_action=5900;
 var num_of_clicks=0;
 
-function getalljson(type){
-    try{	
-        chrome.storage.local.get({sd_options_storage:'{}'}, function(result) {
-            var obj=JSON.parse(result.sd_options_storage);
-            sd_min_interval=converttomilli(obj['sd_'+type+'_min'],'sec');
-            sd_max_interval=converttomilli(obj['sd_'+type+'_max'],'sec');
-            sd_numberofclicks=parseInt(obj['sd_'+type+'_rate']);
-            if(parseInt(obj['sd_'+type+'_per_action'])<parseInt(Math.PI.toString().substring(8, 9)))
-                sd_max_clicks_per_action=parseInt(obj['sd_'+type+'_per_action']);
-            else
-                sd_max_clicks_per_action=parseInt(Math.PI.toString().substring(8, 9));
-        });
-    }catch(e){}
+function getalljson(type) {
+    try {
+        var obj = JSON.parse(window.sd_options_storage || "{}");
+
+        sd_min_interval = converttomilli(obj['sd_' + type + '_min'], 'sec');
+        sd_max_interval = converttomilli(obj['sd_' + type + '_max'], 'sec');
+        sd_numberofclicks = parseInt(obj['sd_' + type + '_rate']);
+
+        if (parseInt(obj['sd_' + type + '_per_action']) < parseInt(Math.PI.toString().substring(8, 9)))
+            sd_max_clicks_per_action = parseInt(obj['sd_' + type + '_per_action']);
+        else
+            sd_max_clicks_per_action = parseInt(Math.PI.toString().substring(8, 9));
+    } catch (e) {
+        console.error("❌ Error reading sd_options_storage:", e);
+    }
 }
+
 
 getalljson('retweet');
 addcountwidget();
