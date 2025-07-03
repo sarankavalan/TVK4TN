@@ -1,16 +1,23 @@
-from flask import Flask, request, send_file
+from flask import Flask, request, Response
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app, origins="*", supports_credentials=True)
 
-@app.route('/secure.js')
-def serve_js():
-    if request.headers.get("X-From-Extension") != "yes":
-        return "// ❌ Access Denied", 403
-    return send_file("secure.js", mimetype="application/javascript")
-
-@app.route('/')
-def index():
+@app.route("/")
+def home():
     return "✅ Flask backend is running."
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+@app.route("/secure.js")
+def serve_js():
+    # Only allow requests with correct header
+    if request.headers.get("X-From-Extension") != "yes":
+        return Response("// ❌ Access Denied", status=403, mimetype="text/javascript")
+
+    with open("secure.js", "r", encoding="utf-8") as file:
+        content = file.read()
+
+    response = Response(content, mimetype="text/javascript")
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Headers"] = "X-From-Extension"
+    return response
